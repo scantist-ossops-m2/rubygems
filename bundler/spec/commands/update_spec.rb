@@ -1582,7 +1582,7 @@ RSpec.describe "bundle update --bundler" do
         specs:
 
       PLATFORMS
-        ruby
+        #{lockfile_platforms}
 
       DEPENDENCIES
 

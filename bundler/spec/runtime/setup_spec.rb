@@ -1622,7 +1622,7 @@ end
 
     it "should fail loudly if the lockfile platforms don't include the current platform" do
       simulate_platform(Gem::Platform.new("x86_64-linux")) do
-        ruby <<-RUBY, :raise_on_error => false, :env => { "BUNDLER_SPEC_READ_ONLY" => "true", "BUNDLER_FORCE_TTY" => "true" }
+        ruby <<-RUBY, raise_on_error: false, env: { "BUNDLER_SPEC_READ_ONLY" => "true", "BUNDLER_FORCE_TTY" => "true" }
           require "bundler/setup"
         RUBY
       end
