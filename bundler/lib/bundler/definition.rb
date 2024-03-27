@@ -142,6 +142,8 @@ module Bundler
       @path_changes = converge_paths
       @source_changes = converge_sources
 
+      @explicit_unlocks = @unlock[:gems] || []
+
       if @unlock[:conservative]
         @unlock[:gems] ||= @dependencies.map(&:name)
       else
@@ -221,9 +223,7 @@ module Bundler
       Bundler.ui.debug "The definition is missing #{missing.map(&:full_name)}"
       true
     rescue BundlerError => e
-      @resolve = nil
-      @resolver = nil
-      @resolution_packages = nil
+      reset_resolver
       @specs = nil
 
       Bundler.ui.debug "The definition is missing dependencies, failed to resolve & materialize locally (#{e})"
@@ -624,12 +624,49 @@ module Bundler
     def start_resolution
       result = SpecSet.new(resolver.start)
 
+      result = retry_if_no_updates(result)
+
       @resolved_bundler_version = result.find {|spec| spec.name == "bundler" }&.version
       @platforms = result.add_extra_platforms!(platforms) if should_add_extra_platforms?
 
       result.complete_platforms!(platforms)
 
       SpecSet.new(result.for(dependencies, false, @platforms))
+    end
+
+    def retry_if_no_updates(result)
+      # Ignore for now the case when updating multiple specific gems
+      return result unless @explicit_unlocks.one?
+
+      explicit_unlock = @explicit_unlocks.first
+
+      original_version = @originally_locked_specs[explicit_unlock].first.version
+      unlocks = @unlock[:gems].dup
+
+      loop do
+        break unless original_version == result[explicit_unlock].first.version
+
+        extra_unlocks = @originally_locked_specs.select do |spec|
+          spec.runtime_dependencies.any? {|d| @unlock[:gems].include?(d.name) }
+        end.map(&:name)
+
+        @unlock[:gems].concat(extra_unlocks).uniq!
+
+        break if unlocks == @unlock[:gems]
+
+        unlocks = @unlock[:gems].dup
+
+        reset_resolver
+        result = SpecSet.new(resolver.start)
+      end
+
+      result
+    end
+
+    def reset_resolver
+      @resolve = nil
+      @resolver = nil
+      @resolution_packages = nil
     end
 
     def precompute_source_requirements_for_indirect_dependencies?
