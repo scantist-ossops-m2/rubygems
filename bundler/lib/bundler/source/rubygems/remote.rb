@@ -16,7 +16,7 @@ module Bundler
           @anonymized_uri = remove_auth(@uri).freeze
         end
 
-        MAX_CACHE_SLUG_HOST_SIZE = 255 - 1 - 32 # 255 minus dot minus MD5 length
+        MAX_CACHE_SLUG_HOST_SIZE = 252 - 1 - 32 # 255 minus dot minus MD5 length
         private_constant :MAX_CACHE_SLUG_HOST_SIZE
 
         # @return [String] A slug suitable for use as a cache key for this
