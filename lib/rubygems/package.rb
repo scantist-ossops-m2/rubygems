@@ -388,6 +388,8 @@ EOM
       File.respond_to? :realpath
 
     destination = File.join destination_dir, filename
+    destination = File.realpath destination if
+      File.respond_to? :realpath
     destination = File.expand_path destination
 
     raise Gem::Package::PathError.new(destination, destination_dir) unless
