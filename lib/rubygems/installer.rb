@@ -764,6 +764,11 @@ class Gem::Installer
     raise Gem::InstallError, "#{spec} has an invalid name"
   end
 
+  def verify_spec_name
+    return if spec.name =~ Gem::Specification::VALID_NAME_PATTERN
+    raise Gem::InstallError, "#{spec} has an invalid name"
+  end
+
   ##
   # Return the text for an application file.
 
@@ -910,6 +915,8 @@ TEXT
     verify_spec
 
     ensure_loadable_spec
+
+    verify_spec_name
 
     verify_spec_name
 
