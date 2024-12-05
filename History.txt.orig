@@ -472,13 +472,6 @@ Bug Fixes:
 
 === 1.4.2 / 2011-01-06
 
-Security fixes:
-
-* RubyGems 2.0.7 and earlier are vulnerable to excessive CPU usage due to a
-  backtracking in Gem::Version validation.  See CVE-2013-4287 for full details
-  including vulnerable APIs.  Fixed versions include 2.0.8, 1.8.26 and
-  1.8.23.1 (for Ruby 1.9.3).  Issue #626 by Damir Sharipov.
-
 Bug fixes:
 
 * Gem::Versions: "1.b1" != "1.b.1", but "1.b1" eql? "1.b.1". Fixes gem indexing.
